@@ -40,7 +40,7 @@ buy.
 ## a few of the biggest irregularities
 
 the current run covers 1979 to august 2026. the exact top 10 are saved in
-`outputs/irregularities.csv`. these are the ones i found easiest to connect to a
+`irregularities.csv`. these are the ones i found easiest to connect to a
 real macro story:
 
 | date | section | spread | z-score | what was probably going on |
@@ -66,12 +66,11 @@ needs a human reading the history.
 ```text
 gilt_rv.py                 curve loading, spreads, z-scores and charts
 test_gilt_rv.py            small check for the feature calculations
-data/processed/            cleaned bank of england curve data
-data/raw/                  cached source files
-outputs/signals.csv        all yields, spreads and z-scores
-outputs/irregularities.csv top 10 outliers
-outputs/yield_curves.png   curve and spread history
-outputs/top_irregularities.png
+boe_nominal_spot.csv       cleaned bank of england curve data
+signals.csv                all yields, spreads and z-scores
+irregularities.csv         top 10 outliers
+yield_curves.png           curve and spread history
+top_irregularities.png
                            bar chart of the top 10
 ```
 
