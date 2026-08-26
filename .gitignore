@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.py[cod]
+.DS_Store
+.idea/
+*.egg-info/
+
+# The official source archive is large and can always be downloaded again.
+data/raw/*.zip

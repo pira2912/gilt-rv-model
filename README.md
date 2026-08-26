@@ -1,80 +1,100 @@
-# UK Gilt Yield Curve Relative-Value Strategy — V1
+# uk gilt yield curve model
 
-A small, readable research project for three UK gilt curve trades: **2s5s**, **5s10s**,
-and **10s30s**. It combines the Bank of England's official daily nominal government
-liability curve with the UK DMO's current gilts-in-issue list. V1 creates lagged
-signals, runs an equal-DV01 historical backtest, maps current signals to physical
-gilts, calculates coupon cashflows and DV01, and produces CSV outputs and charts.
+this is a small fixed-income research project for finding unusual moves in the uk
+gilt curve.
 
-## Open and run in VS Code
+the model uses the bank of england's daily fitted nominal curve at 2y, 5y, 10y and
+30y. it calculates curve spreads, rolling z-scores and a ranked list of the biggest
+outliers. matplotlib then makes the interesting bits easy to look at.
 
-1. Open this folder: `/Users/piraveen/Documents/Gilt Yield`
-2. VS Code should select `.venv/bin/python` automatically.
-3. Open `gilt_rv.py` and press **Run**, or use the terminal:
+it is a model. not a trading strategy. the point is to find something unusual and
+then ask what was going on in the world at the time.
+
+## run it
 
 ```bash
 .venv/bin/python gilt_rv.py
 ```
 
-To download the newest Bank of England archive again:
+to download the source archives again:
 
 ```bash
 .venv/bin/python gilt_rv.py --refresh
 ```
 
-## What V1 does
+the model uses pandas, numpy, matplotlib and openpyxl. the cached raw zip files are
+ignored by git because they can be downloaded again from the bank of england.
 
-- Uses real daily fitted nominal zero-coupon gilt yields at 2, 5, 10, and 30 years.
-- Defines each slope as long-maturity yield minus short-maturity yield.
-- Calculates a 60-day rolling z-score using data lagged by one day.
-- Enters at `|z| >= 2.0` and exits at `|z| <= 0.5`.
-- Applies a `|z| >= 3.5` stop, a 20-day time stop, and explicit trading costs.
-- Normalizes both legs to £1,000 DV01, removing first-order parallel-rate exposure.
-- Saves the full signal history, daily P&L, trade blotter, statistics, and charts.
-- Selects real conventional non-green gilts nearest 2, 5, 10, and 30 years.
-- Calculates curve-implied dirty prices and numerical DV01 from coupon cashflows.
-- Produces an equal-DV01 paper execution sheet with ISINs, actions, and notionals.
+## what it does
 
-The assumptions are collected in the `Settings` class near the top of `gilt_rv.py`.
-That is the easiest place to experiment without changing the engine.
+- calculates `2s5s = y5 - y2`, `5s10s = y10 - y5` and `10s30s = y30 - y10`
+- calculates a 60-observation rolling z-score using the previous day's history
+- ranks the top 10 largest absolute z-scores across the three spreads
+- saves the full series and the ranked outlier table
+- draws the curve, the spreads and a bar chart of the top 10 irregularities
 
-## Outputs
+the z-score is just a way of saying “this is a long way from its recent range”. it
+does not say that the spread should go back, and it definitely does not say what to
+buy.
 
-- `outputs/yield_curves.png` — real historical yields and curve slopes
-- `outputs/backtest_equity.png` — cumulative P&L by strategy and portfolio
-- `outputs/paper_signals.png` — newest curve and entry-threshold diagnostics
-- `outputs/signals.csv` — yields, slopes, and z-scores
-- `outputs/daily_pnl.csv` — normalized strategy P&L
-- `outputs/trades.csv` — trade-by-trade blotter
-- `outputs/performance.csv` — compact portfolio statistics
-- `outputs/selected_gilts.csv` — current physical gilt mapping and bond analytics
-- `outputs/paper_execution.csv` — current paper actions and hedge notionals
-- `data/processed/boe_nominal_spot.csv` — cleaned source dataset
+## a few of the biggest irregularities
 
-## Important limitation
+the current run covers 1979 to august 2026. the exact top 10 are saved in
+`outputs/irregularities.csv`. these are the ones i found easiest to connect to a
+real macro story:
 
-The historical test remains a **constant-maturity curve backtest** because the DMO no
-longer provides a free continuous daily security-price history after July 2017. The
-physical-gilt layer is therefore a current paper-execution mapping, not a retroactively
-invented bond history. Curve-implied prices are dirty present values, not executable
-market quotes; live bid/offer, accrued-interest settlement and financing still need a
-licensed price feed before real orders are appropriate.
+| date | section | spread | z-score | what was probably going on |
+|---|---|---:|---:|---|
+| 31 mar 1982 | 5s10s | 116.3bp | +9.25 | early-1980s inflation and tight monetary policy left the middle and long end behaving very differently. |
+| 26 sep 1997 | 2s5s | -39.6bp | -7.58 | the asian financial crisis was a global risk repricing. the front end and belly did not move together in the usual way. |
+| 19 mar 2020 | 2s5s | 27.4bp | +6.27 | covid and the “dash for cash” caused serious liquidity stress in gilts, even while the bank rate was being cut. |
+| 28 sep 2022 | 10s30s | -33.0bp | -5.84 | the mini-budget shock and forced ldi selling hit long-dated gilts especially hard. |
+| 23 jun 2023 | 2s5s | -61.9bp | -5.16 | the inflation and bank rate repricing cycle pushed the short end well above the belly. |
+| 9 apr 2025 | 5s10s | 68.2bp | +4.97 | a global risk-off move and tariff-related repricing pushed the spread outside its recent range. |
 
-## Roadmap
+the event links are there to give the chart some context, not to pretend this is a
+causal event study. the model finds the odd move. the economic explanation still
+needs a human reading the history.
 
-1. **V1 robustness:** walk-forward parameter checks, subperiod/regime analysis, and
-   stronger validation of costs and missing observations.
-2. **Licensed prices:** add executable bid/offer and historical clean-price data, then
-   include accrued interest, financing, carry, rolldown, and convexity attribution.
-3. **Paper-trade ledger:** persist proposed fills and reconcile them daily without
-   sending orders.
+- [march 2020 policy response](https://www.bankofengland.co.uk/monetary-policy-summary-and-minutes/2020/monetary-policy-summary-for-the-special-monetary-policy-committee-meeting-on-19-march-2020)
+- [2022 gilt-market case study](https://www.bankofengland.co.uk/quarterly-bulletin/2023/2023/financial-stability-gilt-buy-sell-tools-a-gilt-market-case-study)
+- [anatomy of the 2022 gilt-market crisis](https://www.bankofengland.co.uk/working-paper/2023/an-anatomy-of-the-2022-gilt-market-crisis)
+- [bank of england note on 16 september 1992](https://www.bankofengland.co.uk/boeapps/database/fromshowcolumns.asp?C=13T&CSVF=TT&DAT=RNG&FD=1&FM=Jan&FY=2015&Filter=N&FromSeries=1&TD=10&TM=Sep&TY=2025&ToSeries=50&Travel=NIxSUx&html.x=111&html.y=14)
 
-## Data source and methodology
+## files
 
-Sources: [Bank of England — Yield curves](https://www.bankofengland.co.uk/statistics/yield-curves)
-and [UK DMO — Gilt market data](https://www.dmo.gov.uk/data/gilt-market/).
-The Bank describes these as fitted government liability curves derived from gilts and
-GC repo rates. Published spot rates are continuously compounded annual yields. The Bank
-notes that the archive is updated and may be revised.
+```text
+gilt_rv.py                 curve loading, spreads, z-scores and charts
+test_gilt_rv.py            small check for the feature calculations
+data/processed/            cleaned bank of england curve data
+data/raw/                  cached source files
+outputs/signals.csv        all yields, spreads and z-scores
+outputs/irregularities.csv top 10 outliers
+outputs/yield_curves.png   curve and spread history
+outputs/top_irregularities.png
+                           bar chart of the top 10
+```
 
-This project is for research and education, not investment advice.
+run the check with:
+
+```bash
+.venv/bin/python -m unittest test_gilt_rv.py
+```
+
+## v1 limitation
+
+the historical data is made of constant-maturity fitted curve points. it does not
+follow one named gilt through time. this means the output is a curve model, not a
+security-level price or execution history.
+
+the spreads are useful for spotting dislocations, but the model does not include
+bond cashflows, accrued interest, repo, bid-offer, or point-in-time security
+selection. that is fine for this version. pretending otherwise would make the repo
+look more finished than it is.
+
+## sources
+
+- [bank of england yield curves](https://www.bankofengland.co.uk/statistics/yield-curves)
+- [uk debt management office gilt market data](https://www.dmo.gov.uk/data/gilt-market/)
+
+for research and education only. no investment advice.
