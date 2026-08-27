@@ -94,5 +94,3 @@ selection. that is fine for this version, but I'd like to improve
 
 - [bank of england yield curves](https://www.bankofengland.co.uk/statistics/yield-curves)
 - [uk debt management office gilt market data](https://www.dmo.gov.uk/data/gilt-market/)
-
-for research and education only. no investment advice.
