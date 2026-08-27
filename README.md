@@ -1,14 +1,14 @@
 # uk gilt yield curve model
 
-this is a small fixed-income research project for finding unusual moves in the uk
+this is my fixed-income research project for finding unusual moves in the uk
 gilt curve.
 
 the model uses the bank of england's daily fitted nominal curve at 2y, 5y, 10y and
 30y. it calculates curve spreads, rolling z-scores and a ranked list of the biggest
 outliers. matplotlib then makes the interesting bits easy to look at.
 
-it is a model. not a trading strategy. the point is to find something unusual and
-then ask what was going on in the world at the time.
+the point is to find something unusual and
+then ask what was going on that might've caused that irregularity.
 
 ## run it
 
@@ -29,11 +29,11 @@ ignored by git because they can be downloaded again from the bank of england.
 
 - calculates `2s5s = y5 - y2`, `5s10s = y10 - y5` and `10s30s = y30 - y10`
 - calculates a 60-observation rolling z-score using the previous day's history
-- ranks the top 10 largest absolute z-scores across the three spreads
+- Ranks the top 10 largest absolute z-scores across the three spreads
 - saves the full series and the ranked outlier table
 - draws the curve, the spreads and a bar chart of the top 10 irregularities
 
-the z-score is just a way of saying “this is a long way from its recent range”. it
+the z-score is just a way of saying “this is a long way relative to its recent range”. it
 does not say that the spread should go back, and it definitely does not say what to
 buy.
 
@@ -88,8 +88,7 @@ security-level price or execution history.
 
 the spreads are useful for spotting dislocations, but the model does not include
 bond cashflows, accrued interest, repo, bid-offer, or point-in-time security
-selection. that is fine for this version. pretending otherwise would make the repo
-look more finished than it is.
+selection. that is fine for this version, but I'd like to improve
 
 ## sources
 
